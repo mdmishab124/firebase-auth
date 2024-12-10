@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Authentication</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md">
+        <div id="auth-container" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <h2 class="text-2xl mb-6 text-center">Login</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="login-email">
+                        Email
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="login-email" type="email" placeholder="Email" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="login-password">
+                        Password
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="login-password" type="password" placeholder="Password" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        type="submit">
+                        Sign In
+                    </button>
+                    <a id="show-signup"
+                        class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                        href="#">
+                        Create Account
+                    </a>
+                </div>
+                <div id="login-error" class="text-red-500 text-center mt-4 hidden"></div>
+                <div class="mt-4 text-center">
+                    <button id="google-login" type="button" class="text-gray-600 hover:text-gray-900">
+                        Sign in with Google
+                    </button>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="auth-form hidden">
+                <h2 class="text-2xl mb-6 text-center">Create Account</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="signup-name">
+                        Full Name
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="signup-name" type="text" placeholder="Full Name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="signup-email">
+                        Email
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="signup-email" type="email" placeholder="Email" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="signup-password">
+                        Password
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="signup-password" type="password" placeholder="Password" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="confirm-password">
+                        Confirm Password
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="confirm-password" type="password" placeholder="Confirm Password" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button
+                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        type="submit">
+                        Sign Up
+                    </button>
+                    <a id="show-login"
+                        class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                        href="#">
+                        Already have an account?
+                    </a>
+                </div>
+                <div id="signup-error" class="text-red-500 text-center mt-4 hidden"></div>
+            </form>
+
+            <!-- Profile Section -->
+            <div id="profile-section" class="hidden">
+                <h2 class="text-2xl mb-6 text-center">Welcome</h2>
+                <div id="user-info" class="text-center mb-6">
+                    <p id="user-name" class="text-xl font-bold"></p>
+                    <p id="user-email" class="text-gray-600"></p>
+                </div>
+                <button id="logout-btn"
+                    class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    
+
+    <script>
+        // Firebase Configuration (Replace with your own)
+        const firebaseConfig = {
+            apiKey: "AIzaSyACvaIwHDI5WRXGU9KRX_PP5Iz5L8_KesM",
+            authDomain: "fir-auth-4a130.firebaseapp.com",
+            projectId: "fir-auth-4a130",
+            storageBucket: "fir-auth-4a130.firebasestorage.app",
+            messagingSenderId: "912424880816",
+            appId: "1:912424880816:web:4cec32e6c6b50c2f278975",
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Auth References
+        const auth = firebase.auth();
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const profileSection = document.getElementById('profile-section');
+        const loginError = document.getElementById('login-error');
+        const signupError = document.getElementById('signup-error');
+
+        // Form Toggle Logic
+        document.getElementById('show-signup').addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        });
+
+        document.getElementById('show-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+
+        // Login Handler
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .catch((error) => {
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('hidden');
+                });
+        });
+
+        // Google Login Handler
+        document.getElementById('google-login').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch((error) => {
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('hidden');
+                });
+        });
+
+        // Signup Handler
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                signupError.textContent = 'Passwords do not match';
+                signupError.classList.remove('hidden');
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Update profile with name
+                    return userCredential.user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .catch((error) => {
+                    signupError.textContent = error.message;
+                    signupError.classList.remove('hidden');
+                });
+        });
+
+        // Logout Handler
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                document.getElementById('user-name').textContent = user.displayName || 'User';
+                document.getElementById('user-email').textContent = user.email;
+
+                // Hide forms, show profile
+                loginForm.classList.add('hidden');
+                signupForm.classList.add('hidden');
+                profileSection.classList.remove('hidden');
+
+                // Reset error messages
+                loginError.classList.add('hidden');
+                signupError.classList.add('hidden');
+            } else {
+                // User is signed out
+                profileSection.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>
